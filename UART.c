@@ -142,7 +142,6 @@ void UART_gets(uint8_t com, char *str)
 {
 	char c;
 	uint8_t i = 0;
-	uint8_t bloqueado = 0; // bandera letra
 
 	while (1)
 	{
@@ -154,39 +153,26 @@ void UART_gets(uint8_t com, char *str)
 			UART_puts(com, "\r\n");  // Salto de linea en la terminal
 			break;
 		}
-
+		
 		// Backspace
 		else if (c == 8 || c == 127) // ASCII 8 = BS, 127 = DEL
 		{
-			if (i > 0 && !bloqueado)
+			if (i > 0 )
 			{
 				i--;	// Borra numero
+				UART_puts(com, "\b \b");
 			}
-
-			UART_puts(com, "\b \b");
 		}
-
-		// Digito
-		else if (c >= '0' && c <= '9')
+		
+		else if ((i < 19) && ((c != 8 && c != 127)))
 		{
-			if (!bloqueado)		// Guarda mientras no haya otro caracter
-			{
-				str[i++] = c;
-			}
-			UART_putchar(com, c);	// Eco
-		}
-
-		// Otro caracter
-		else
-		{
-			bloqueado = 1; 
+			str[i++] = c;
 			UART_putchar(com, c);     // Eco
 		}
 	}
 
 	str[i] = '\0';  // Termina cadena
 }
-
 // =============================================
 void UART_puts(uint8_t com, char *str)
 {
